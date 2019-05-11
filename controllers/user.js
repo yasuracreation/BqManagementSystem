@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const {User,UserValidate} = require('../models/user');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+
+
 async function createUser (req,res){
     const {error} = UserValidate(req.body);
 
@@ -34,4 +36,36 @@ async function createUser (req,res){
     
     res.send(_.pick(user,['_id','userName','propertyId']));
 }
+
+async function update(req,res){
+    const {error}= UserValidate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const user = await User.findByIdAndUpdate(req.params.id,req.body,{new:true})
+    if(!user) res.status(404).send('The User is not found');
+
+    res.send(user);
+}
+
+async function getbyId (req,res){
+    let user = await User.findById(req.params.id);
+
+    if(!user)return res.status(400).send('Requested resources not found');
+    res.send(user);
+}
+async function get (req,res){
+    const user = await User.find().sort('userName');
+    if(!user) return res.status('400').send('User information not available');
+    
+    res.send(user);
+}
+async function deleteuser(req,res){
+    const response = await User.findByIdAndRemove(req.params.id);
+    if(!response)return res.status(404).send('requested resourse not found');
+
+    res.send(response);
+}
 exports.usercreate = createUser; 
+exports.userupdate = update;
+exports.userGetId = getbyId;
+exports.userget = get;
+exports.deleteuser = deleteuser;
