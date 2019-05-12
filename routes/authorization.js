@@ -1,27 +1,33 @@
 
 const express = require('express');
 const router = express.Router();
-const {User,UserValidate} = require('../models/user');
-
-
+const {User} = require('../models/user');
+const bcrypt = require('bcrypt');
+const Joi = require('joi');
+const jwt = require('jsonwebtoken');
+const config = require('config')
 router.post('/',async (req,res)=>{
-    const {error} = UserValidate(req.body);
-
+    const {error} = validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
+    let user = await User.findOne({userName:req.body.userName})
+        if(!user) return res.status(401).send('Invalid User Name or Password') 
+   const validpassword = await bcrypt.compare(req.body.password,user.password);
+    if(!validpassword) return res.status(401).send('Invalid User Name or Password') 
+   
+    const token = jwt.sign({_id:user._id,userName:user.userName},config.get('jwtPrivateKey'))
 
-    let user = new User({
-        propertyId:req.body.propertyId,
-        userName:req.body.userName,
-        fristName:req.body.fristName,
-        lastName:req.body.lastName,
-        password:req.body.password,
-        status:req.body.status,
-        createdDate:req.body.createdDate,
-        updateDate:req.body.updateDate,
-        createdUser:req.body.createdUser,
-        updatedUser:req.body.updatedUser
-    });
-
-    user = await user.save();
-    res.send(user);
+    res.send(token);
 });
+
+function validate(req) {
+    const schema = {
+      propertyId: Joi.number().required(),
+      userName:Joi.string().min(3).max(60),    
+      password:Joi.string()
+
+    };
+  
+    return Joi.validate(req, schema);
+  }
+
+module.exports = router;
