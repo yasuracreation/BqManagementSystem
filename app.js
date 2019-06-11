@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const config = require('config')
+require('express-async-errors')
 
 //models
 const property = require('./routes/property')
@@ -10,6 +11,8 @@ const tax = require('./routes/tax')
 const taxcode = require('./routes/taxcode')
 const foodType = require('./routes/foodtype')
 const auth = require('./routes/authorization');
+const error = require('./middleware/error');
+const asyncMiddleWare =  require('./middleware/async')
 //connect mongodb
 if(!config.get('jwtPrivateKey')){
     console.error('FATAL ERROR:jwtPrivateKey not defined.');
@@ -25,14 +28,14 @@ const app = express();
 app.use(express.json());
 
 //routes
-app.use('/api/properties',property);
-app.use('/api/user',user);
+app.use('/api/properties',asyncMiddleWare(property));
+app.use('/api/user',asyncMiddleWare(user));
 app.use('/api/food',food);
 app.use('/api/tax',tax);
 app.use('/api/taxcode',taxcode);
 app.use('/api/foodtype',foodType);
-app.use('/api/auth',auth);
-
+app.use('/api/auth',asyncMiddleWare(auth));
+app.use(error);
 
 
 const port = process.env.PORT || 3000
