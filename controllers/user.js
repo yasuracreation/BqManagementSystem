@@ -6,6 +6,7 @@ const asyncMiddleware = require('../middleware/async');
 
 
 async function createUser (req,res){
+    
     const {error} = UserValidate(req.body);
     
     if(error) return res.status(400).send(error.details[0].message);
@@ -19,7 +20,7 @@ async function createUser (req,res){
         console.log(hash);
         req.body.password = hash;
 
-            user = new User(_.pick(req.body,['propertyId','userName','fristName','lastname','password','status']))
+            user = new User(_.pick(req.body,['propertyId','userName','fristName','lastName','password','status']))
 
 
     //     user = new User({

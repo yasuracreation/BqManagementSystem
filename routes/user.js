@@ -6,7 +6,7 @@ const { usercreate,userupdate,userGetId,userget,deleteuser,myprofile} = require(
 
 
 router.get('/',auth ,userget);
-router.post('/',auth ,usercreate);
+router.post('/',usercreate);
 router.put('/:id',auth,userupdate)
 router.get('/:id',auth,userGetId)
 router.get('/me',auth,myprofile)

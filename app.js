@@ -14,6 +14,8 @@ const auth = require('./routes/authorization');
 const error = require('./middleware/error');
 const asyncMiddleWare =  require('./middleware/async')
 //connect mongodb
+
+
 if(!config.get('jwtPrivateKey')){
     console.error('FATAL ERROR:jwtPrivateKey not defined.');
     process.exit(1);
@@ -26,7 +28,24 @@ mongoose.connect('mongodb://localhost/banquatsys')
 
 const app = express();
 app.use(express.json());
-
+// app.use((req,res)=>{
+//     res.header('Access-Control-Allow-Origin','*');
+//     res.header('Access-Control-Allow-Headers','Origin,X-Requested-With,Conmtent-Type,Accept,Authorization');
+//     if(req.method === 'OPTIONS'){
+//         res.header('Access-Control-Allow-Methods','PUT,POST,PATCH,DELETE,GET');
+//         return res.status(200).json({})
+//     }
+// });
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With,x-auth-token, Content-Type, Accept");
+    if(req.method === 'OPTIONS'){
+                res.header('Access-Control-Allow-Methods','PUT,POST,PATCH,DELETE,GET');
+                return res.status(200).json({})
+            }
+    next();
+  });
 //routes
 app.use('/api/properties',asyncMiddleWare(property));
 app.use('/api/user',asyncMiddleWare(user));
