@@ -6,7 +6,7 @@ router.get('/',async (req,res)=>{
     const food = await Food.find().sort('foodName');
     if(!food) return res.status('400').send('Food information not available');
     
-    res.send(food);
+    res.status(200).send(food);
 });
 
 router.post('/',async (req,res)=>{
@@ -27,7 +27,7 @@ router.post('/',async (req,res)=>{
 
     try{ 
         food = await food.save();
-        res.send(food);
+        res.status(200).send(food);
     }catch(ex){
         res.status(500)
         .send('Exeption while saving food, food havent created successfully '+ex.message);
